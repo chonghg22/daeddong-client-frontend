@@ -212,7 +212,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     final markers = toilets
         .where((t) => t.latitude != null && t.longitude != null)
         .map((t) {
-          final marker = NMarker(
+          final marker = NClusterableMarker(
             id: 'toilet_${t.seq ?? math.Random().nextInt(999999)}',
             position: NLatLng(t.latitude!, t.longitude!),
           );
@@ -221,7 +221,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
         })
         .toSet();
 
-    await _mapController!.clearOverlays(type: NOverlayType.marker);
+    await _mapController!.clearOverlays(type: NOverlayType.clusterableMarker);
     if (markers.isNotEmpty) {
       await _mapController!.addOverlayAll(markers);
     }
@@ -351,6 +351,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               ),
               locationButtonEnable: true,
             ),
+            clusterOptions: const NaverMapClusteringOptions(),
             onMapReady: (controller) {
               _mapController = controller;
             },
