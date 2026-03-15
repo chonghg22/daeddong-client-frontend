@@ -17,4 +17,8 @@ class ToiletRepository {
       distance: distance,
     );
   }
+
+  Future<ToiletModel> getToiletDetail({required int seq}) {
+    return _dataSource.getToiletDetail(seq: seq);
+  }
 }

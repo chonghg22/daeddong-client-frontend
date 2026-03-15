@@ -17,6 +17,7 @@ class ToiletModel {
   final String? alarmYn;
   final String? pwdYn;
   final String? openYn;
+  final String? etc;
 
   const ToiletModel({
     this.seq,
@@ -37,6 +38,7 @@ class ToiletModel {
     this.alarmYn,
     this.pwdYn,
     this.openYn,
+    this.etc,
   });
 
   factory ToiletModel.fromJson(Map<String, dynamic> json) {
@@ -59,6 +61,7 @@ class ToiletModel {
       alarmYn: json['alarmYn'] as String?,
       pwdYn: json['pwdYn'] as String?,
       openYn: json['openYn'] as String?,
+      etc: json['etc'] as String?,
     );
   }
 
@@ -81,5 +84,6 @@ class ToiletModel {
         'alarmYn': alarmYn,
         'pwdYn': pwdYn,
         'openYn': openYn,
+        'etc': etc,
       };
 }

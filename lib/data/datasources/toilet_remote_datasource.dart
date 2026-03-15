@@ -29,4 +29,18 @@ class ToiletRemoteDataSource {
     final list = data['toiletList'] as List<dynamic>;
     return list.map((e) => ToiletModel.fromJson(e as Map<String, dynamic>)).toList();
   }
+
+  Future<ToiletModel> getToiletDetail({required int seq}) async {
+    final response = await _dio.get(
+      '/toilet/toiletInfo',
+      queryParameters: {'seq': seq},
+    );
+
+    final data = response.data as Map<String, dynamic>;
+    if (data['resultCode'] != '0000') {
+      throw Exception('API 오류: ${data['resultCode']}');
+    }
+
+    return ToiletModel.fromJson(data['toiletInfo'] as Map<String, dynamic>);
+  }
 }
