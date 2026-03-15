@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:daeddong/core/constants/app_constants.dart';
 import 'package:daeddong/core/router/app_router.dart';
 import 'package:daeddong/core/theme/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await NaverMapSdk.instance.initialize(clientId: AppConstants.naverMapClientId);
+  await FlutterNaverMap().init(clientId: AppConstants.naverMapClientId);
+  await MobileAds.instance.initialize();
   runApp(const ProviderScope(child: BabyToiletApp()));
 }
 
