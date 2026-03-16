@@ -13,6 +13,9 @@ import 'package:daeddong/core/constants/app_constants.dart';
 import 'package:daeddong/data/models/toilet_model.dart';
 import 'package:daeddong/features/map/providers/map_provider.dart';
 
+// 필터 칩 바 높이 (포지셔닝 계산에 사용)
+const double _kFilterBarHeight = 52.0;
+
 class MapScreen extends ConsumerStatefulWidget {
   const MapScreen({super.key});
 
@@ -35,7 +38,6 @@ class _MapScreenState extends ConsumerState<MapScreen> {
       const NLatLng(AppConstants.defaultLat, AppConstants.defaultLng);
   double _currentZoom = 15;
 
-  // 지도가 첫 번째 idle 이벤트를 받았는지 추적
   bool _mapReady = false;
 
   static const double _searchButtonThresholdDeg = 0.005;
@@ -113,8 +115,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('위치 권한 필요'),
-        content: const Text(
-            '위치 권한이 영구적으로 거부되었어요.\n설정에서 권한을 허용해 주세요.'),
+        content: const Text('위치 권한이 영구적으로 거부되었어요.\n설정에서 권한을 허용해 주세요.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
@@ -170,7 +171,6 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   // ──────────────────────── 카메라 이벤트 ───────────────────────────
 
   void _onCameraChange(NCameraUpdateReason reason, bool isAnimated) {
-    // 사용자가 직접 지도를 움직인 경우에만 검색 버튼 표시
     if (!isAnimated && _mapReady && !_showSearchHereButton) {
       if (mounted) setState(() => _showSearchHereButton = true);
     }
@@ -190,11 +190,9 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     }
 
     final latDiff =
-        (_currentCameraPosition.latitude - _lastSearchedPosition.latitude)
-            .abs();
+        (_currentCameraPosition.latitude - _lastSearchedPosition.latitude).abs();
     final lngDiff =
-        (_currentCameraPosition.longitude - _lastSearchedPosition.longitude)
-            .abs();
+        (_currentCameraPosition.longitude - _lastSearchedPosition.longitude).abs();
 
     if (latDiff > _searchButtonThresholdDeg ||
         lngDiff > _searchButtonThresholdDeg) {
@@ -301,6 +299,111 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     }
   }
 
+  // ─────────────────────── 필터 바텀시트 ────────────────────────────
+
+  void _showFilterBottomSheet(FilterState currentFilter) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => _FilterBottomSheet(
+        initialFilter: currentFilter,
+        onApply: (filter) =>
+            ref.read(mapProvider.notifier).applyFilter(filter),
+      ),
+    );
+  }
+
+  // ─────────────────────── 필터 칩 바 ──────────────────────────────
+
+  Widget _buildFilterChipBar(FilterState filterState) {
+    void toggle(FilterState updated) =>
+        ref.read(mapProvider.notifier).applyFilter(updated);
+
+    return Container(
+      color: Colors.white,
+      height: _kFilterBarHeight,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        child: Row(
+          children: [
+            _MapFilterChip(
+              label: '필터',
+              icon: Icons.tune,
+              selected: filterState.hasAnyFilter,
+              onTap: () => _showFilterBottomSheet(filterState),
+            ),
+            const SizedBox(width: 8),
+            _MapFilterChip(
+              label: '24시간',
+              selected: filterState.isAlwaysOpen,
+              onTap: () => toggle(
+                  filterState.copyWith(isAlwaysOpen: !filterState.isAlwaysOpen)),
+            ),
+            const SizedBox(width: 8),
+            _MapFilterChip(
+              label: '운영중',
+              selected: filterState.isOperatingNow,
+              onTap: () => toggle(filterState.copyWith(
+                  isOperatingNow: !filterState.isOperatingNow)),
+            ),
+            const SizedBox(width: 8),
+            _MapFilterChip(
+              label: '기저귀',
+              selected: filterState.hasBaby,
+              onTap: () =>
+                  toggle(filterState.copyWith(hasBaby: !filterState.hasBaby)),
+            ),
+            const SizedBox(width: 8),
+            _MapFilterChip(
+              label: '장애인',
+              selected: filterState.hasDisabled,
+              onTap: () => toggle(
+                  filterState.copyWith(hasDisabled: !filterState.hasDisabled)),
+            ),
+            const SizedBox(width: 8),
+            _MapFilterChip(
+              label: 'CCTV',
+              selected: filterState.hasCctv,
+              onTap: () =>
+                  toggle(filterState.copyWith(hasCctv: !filterState.hasCctv)),
+            ),
+            const SizedBox(width: 8),
+            _MapFilterChip(
+              label: '비상벨',
+              selected: filterState.hasAlarm,
+              onTap: () =>
+                  toggle(filterState.copyWith(hasAlarm: !filterState.hasAlarm)),
+            ),
+            const SizedBox(width: 8),
+            _MapFilterChip(
+              label: '공중화장실',
+              selected: filterState.toiletType == '공중화장실',
+              onTap: () => toggle(
+                filterState.toiletType == '공중화장실'
+                    ? filterState.copyWith(clearToiletType: true)
+                    : filterState.copyWith(toiletType: '공중화장실'),
+              ),
+            ),
+            const SizedBox(width: 8),
+            _MapFilterChip(
+              label: '개방화장실',
+              selected: filterState.toiletType == '개방화장실',
+              onTap: () => toggle(
+                filterState.toiletType == '개방화장실'
+                    ? filterState.copyWith(clearToiletType: true)
+                    : filterState.copyWith(toiletType: '개방화장실'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   // ────────────────────────── 네트워크 에러 ─────────────────────────
 
   void _showNetworkErrorSnackBar() {
@@ -327,8 +430,21 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     final topPadding = MediaQuery.of(context).padding.top;
     final mapState = ref.watch(mapProvider);
 
-    ref.listen(mapProvider.select((s) => s.toiletList), (_, toilets) {
-      _updateMarkers(toilets);
+    // filteredToiletList 변경 → 마커 갱신 + 빈 결과 토스트
+    ref.listen(mapProvider.select((s) => s.filteredToiletList),
+        (prev, filtered) {
+      _updateMarkers(filtered);
+      if (filtered.isEmpty &&
+          prev != null &&
+          prev.isNotEmpty &&
+          ref.read(mapProvider).filterState.hasAnyFilter) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('조건에 맞는 화장실이 없어요'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
     });
 
     ref.listen(mapProvider.select((s) => s.error), (_, error) {
@@ -337,7 +453,9 @@ class _MapScreenState extends ConsumerState<MapScreen> {
       }
     });
 
-    final bannerHeight = _bannerAdLoaded ? (_bannerAd?.size.height ?? 50).toDouble() : 0.0;
+    final bannerHeight =
+        _bannerAdLoaded ? (_bannerAd?.size.height ?? 50).toDouble() : 0.0;
+    final topOffset = topPadding + (_locationDenied ? 44.0 : 0.0);
 
     return Scaffold(
       body: Stack(
@@ -346,7 +464,8 @@ class _MapScreenState extends ConsumerState<MapScreen> {
           NaverMap(
             options: const NaverMapViewOptions(
               initialCameraPosition: NCameraPosition(
-                target: NLatLng(AppConstants.defaultLat, AppConstants.defaultLng),
+                target:
+                    NLatLng(AppConstants.defaultLat, AppConstants.defaultLng),
                 zoom: 15,
               ),
               locationButtonEnable: true,
@@ -369,8 +488,8 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                 onTap: openAppSettings,
                 child: Container(
                   color: Colors.orange.shade700,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 16, vertical: 10),
                   child: const Text(
                     '위치 권한을 허용하면 내 주변 화장실을 찾을 수 있어요  ›',
                     style: TextStyle(color: Colors.white, fontSize: 13),
@@ -380,10 +499,18 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               ),
             ),
 
+          // ── 필터 칩 바 ──
+          Positioned(
+            top: topOffset,
+            left: 0,
+            right: 0,
+            child: _buildFilterChipBar(mapState.filterState),
+          ),
+
           // ── 이 지역 검색 버튼 ──
           if (_showSearchHereButton)
             Positioned(
-              top: topPadding + (_locationDenied ? 44 : 0) + 12,
+              top: topOffset + _kFilterBarHeight + 8,
               left: 0,
               right: 0,
               child: Center(
@@ -408,7 +535,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
           // ── 로딩 인디케이터 ──
           if (mapState.isLoading)
             Positioned(
-              top: topPadding + (_locationDenied ? 44 : 0) + 12,
+              top: topOffset + _kFilterBarHeight + 8,
               left: 0,
               right: 0,
               child: const Center(
@@ -444,8 +571,8 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                         ),
                       ),
                       TextButton(
-                        onPressed: () => _loadToilets(
-                            _currentCameraPosition, _currentZoom),
+                        onPressed: () =>
+                            _loadToilets(_currentCameraPosition, _currentZoom),
                         child: const Text('재시도'),
                       ),
                     ],
@@ -467,6 +594,275 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               ),
             ),
         ],
+      ),
+    );
+  }
+}
+
+// ─────────────────────── 필터 칩 위젯 ────────────────────────────────
+
+class _MapFilterChip extends StatelessWidget {
+  final String label;
+  final IconData? icon;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _MapFilterChip({
+    required this.label,
+    this.icon,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final color = Theme.of(context).colorScheme.primary;
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: selected ? color : Colors.white,
+          border: Border.all(
+            color: selected ? color : Colors.grey.shade300,
+          ),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (icon != null) ...[
+              Icon(icon, size: 14,
+                  color: selected ? Colors.white : Colors.grey.shade700),
+              const SizedBox(width: 4),
+            ] else if (selected) ...[
+              const Icon(Icons.check, size: 14, color: Colors.white),
+              const SizedBox(width: 4),
+            ],
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: selected ? Colors.white : Colors.grey.shade700,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─────────────────────── 필터 바텀시트 ───────────────────────────────
+
+class _FilterBottomSheet extends StatefulWidget {
+  final FilterState initialFilter;
+  final void Function(FilterState) onApply;
+
+  const _FilterBottomSheet({
+    required this.initialFilter,
+    required this.onApply,
+  });
+
+  @override
+  State<_FilterBottomSheet> createState() => _FilterBottomSheetState();
+}
+
+class _FilterBottomSheetState extends State<_FilterBottomSheet> {
+  late FilterState _filter;
+
+  @override
+  void initState() {
+    super.initState();
+    _filter = widget.initialFilter;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 핸들
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // 타이틀 + 초기화
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('필터',
+                    style:
+                        TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
+                TextButton(
+                  onPressed: () =>
+                      setState(() => _filter = const FilterState()),
+                  child: const Text('초기화'),
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+
+            // 토글 스위치 항목들
+            _FilterSwitchRow(
+              label: '24시간 운영',
+              value: _filter.isAlwaysOpen,
+              onChanged: (v) =>
+                  setState(() => _filter = _filter.copyWith(isAlwaysOpen: v)),
+            ),
+            _FilterSwitchRow(
+              label: '현재 운영중인 곳만',
+              value: _filter.isOperatingNow,
+              onChanged: (v) =>
+                  setState(() => _filter = _filter.copyWith(isOperatingNow: v)),
+            ),
+            _FilterSwitchRow(
+              label: '기저귀교환대 있음',
+              value: _filter.hasBaby,
+              onChanged: (v) =>
+                  setState(() => _filter = _filter.copyWith(hasBaby: v)),
+            ),
+            _FilterSwitchRow(
+              label: '장애인 화장실 있음',
+              value: _filter.hasDisabled,
+              onChanged: (v) =>
+                  setState(() => _filter = _filter.copyWith(hasDisabled: v)),
+            ),
+            _FilterSwitchRow(
+              label: 'CCTV 있음',
+              value: _filter.hasCctv,
+              onChanged: (v) =>
+                  setState(() => _filter = _filter.copyWith(hasCctv: v)),
+            ),
+            _FilterSwitchRow(
+              label: '비상벨 있음',
+              value: _filter.hasAlarm,
+              onChanged: (v) =>
+                  setState(() => _filter = _filter.copyWith(hasAlarm: v)),
+            ),
+
+            const SizedBox(height: 12),
+
+            // 화장실 종류
+            const Text('화장실 종류',
+                style:
+                    TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              children: [
+                _ToiletTypeChip(
+                  label: '전체',
+                  selected: _filter.toiletType == null,
+                  onTap: () => setState(
+                      () => _filter = _filter.copyWith(clearToiletType: true)),
+                ),
+                _ToiletTypeChip(
+                  label: '공중화장실',
+                  selected: _filter.toiletType == '공중화장실',
+                  onTap: () => setState(() => _filter =
+                      _filter.copyWith(toiletType: '공중화장실')),
+                ),
+                _ToiletTypeChip(
+                  label: '개방화장실',
+                  selected: _filter.toiletType == '개방화장실',
+                  onTap: () => setState(() => _filter =
+                      _filter.copyWith(toiletType: '개방화장실')),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 20),
+
+            // 적용 버튼
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  widget.onApply(_filter);
+                },
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                ),
+                child: const Text('적용', style: TextStyle(fontSize: 15)),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _FilterSwitchRow extends StatelessWidget {
+  final String label;
+  final bool value;
+  final ValueChanged<bool> onChanged;
+
+  const _FilterSwitchRow({
+    required this.label,
+    required this.value,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SwitchListTile(
+      contentPadding: EdgeInsets.zero,
+      title: Text(label, style: const TextStyle(fontSize: 14)),
+      value: value,
+      onChanged: onChanged,
+      dense: true,
+    );
+  }
+}
+
+class _ToiletTypeChip extends StatelessWidget {
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _ToiletTypeChip({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final color = Theme.of(context).colorScheme.primary;
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: selected ? color : Colors.white,
+          border: Border.all(color: selected ? color : Colors.grey.shade300),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+            color: selected ? Colors.white : Colors.grey.shade700,
+          ),
+        ),
       ),
     );
   }
@@ -510,8 +906,8 @@ class _ToiletBottomSheet extends StatelessWidget {
             // 이름
             Text(
               toilet.name ?? '화장실',
-              style: const TextStyle(
-                  fontSize: 18, fontWeight: FontWeight.bold),
+              style:
+                  const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
