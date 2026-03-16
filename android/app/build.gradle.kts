@@ -32,12 +32,10 @@ android {
         create("daeddong") {
             dimension = "app"
             applicationId = "kr.co.daeddong"
-            resValue("string", "app_name", "대똥여지도")
         }
         create("babytoilet") {
             dimension = "app"
             applicationId = "kr.co.babytoilet"
-            resValue("string", "app_name", "기저귀갈이대")
         }
     }
 

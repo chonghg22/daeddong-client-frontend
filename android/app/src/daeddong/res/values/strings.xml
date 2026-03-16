@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="app_name">대똥여지도</string>
     <string name="admob_app_id">ca-app-pub-1242280591895560~2837660406</string>
     <string name="banner_ad_unit_id">REDACTED_ADMOB_DAEDDONG</string>
 </resources>
