@@ -37,6 +37,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   double _currentZoom = 15;
 
   bool _mapReady = false;
+  bool _isUpdatingMarkers = false;
 
   static const double _searchButtonThresholdDeg = 0.005;
 
@@ -203,23 +204,29 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   // ────────────────────────── 마커 처리 ────────────────────────────
 
   Future<void> _updateMarkers(List<ToiletModel> toilets) async {
-    if (_mapController == null) return;
+    if (_mapController == null || _isUpdatingMarkers) return;
+    _isUpdatingMarkers = true;
+    try {
+      final markers = toilets
+          .where((t) => t.latitude != null && t.longitude != null)
+          .map((t) {
+            final marker = NClusterableMarker(
+              id: 'toilet_${t.seq ?? math.Random().nextInt(999999)}',
+              position: NLatLng(t.latitude!, t.longitude!),
+            );
+            marker.setOnTapListener((_) => _showToiletBottomSheet(t));
+            return marker;
+          })
+          .toSet();
 
-    final markers = toilets
-        .where((t) => t.latitude != null && t.longitude != null)
-        .map((t) {
-          final marker = NClusterableMarker(
-            id: 'toilet_${t.seq ?? math.Random().nextInt(999999)}',
-            position: NLatLng(t.latitude!, t.longitude!),
-          );
-          marker.setOnTapListener((_) => _showToiletBottomSheet(t));
-          return marker;
-        })
-        .toSet();
-
-    await _mapController!.clearOverlays(type: NOverlayType.clusterableMarker);
-    if (markers.isNotEmpty) {
-      await _mapController!.addOverlayAll(markers);
+      await _mapController!.clearOverlays(type: NOverlayType.clusterableMarker);
+      if (markers.isNotEmpty && _mapController != null) {
+        await _mapController!.addOverlayAll(markers);
+      }
+    } catch (e) {
+      // flutter_naver_map race condition 무시
+    } finally {
+      _isUpdatingMarkers = false;
     }
   }
 
