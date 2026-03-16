@@ -30,8 +30,7 @@ class ToiletRemoteDataSource {
     debugPrint('[Supabase] getToiletDetail seq=$seq');
 
     final result = await _supabase
-        .schema('daeddong')
-        .from('TOILET')
+        .from('toilet')
         .select()
         .eq('SEQ', seq)
         .single();
@@ -45,11 +44,11 @@ class ToiletRemoteDataSource {
     required String reportType,
     String? content,
   }) async {
-    await _supabase.schema('daeddong').from('REPORT').insert({
+    await _supabase.from('report').insert({
       'TOILET_SEQ': toiletSeq,
       'TOILET_NAME': toiletName,
       'REPORT_TYPE': reportType,
-      if (content != null && content.isNotEmpty) 'CONTENT': content,
+      'CONTENT': content,
     });
   }
 }
