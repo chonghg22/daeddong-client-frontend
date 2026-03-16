@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:daeddong/data/models/toilet_model.dart';
 import 'package:daeddong/data/repositories/toilet_repository.dart';
@@ -117,6 +118,7 @@ class MapNotifier extends StateNotifier<MapState> {
         isLoading: false,
       );
     } catch (e) {
+      debugPrint('[MapProvider] loadToilets 오류: $e');
       state = state.copyWith(isLoading: false, error: e.toString());
     }
   }

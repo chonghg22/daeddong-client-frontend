@@ -45,8 +45,8 @@ class ToiletModel {
     return ToiletModel(
       seq: json['seq'] as int?,
       name: json['name'] as String?,
-      latitude: (json['latitude'] as num?)?.toDouble(),
-      longitude: (json['longitude'] as num?)?.toDouble(),
+      latitude: double.tryParse(json['latitude']?.toString() ?? ''),
+      longitude: double.tryParse(json['longitude']?.toString() ?? ''),
       address: json['address'] as String?,
       si: json['si'] as String?,
       gungu: json['gungu'] as String?,

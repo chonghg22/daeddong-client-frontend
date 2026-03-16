@@ -30,12 +30,20 @@ class ToiletRemoteDataSource {
     );
 
     final data = response.data as Map<String, dynamic>;
+    debugPrint('[API] response resultCode=${data['resultCode']}, toiletList length=${(data['toiletList'] as List?)?.length}');
+
     if (data['resultCode'] != '0000') {
       throw Exception('API 오류: ${data['resultCode']}');
     }
 
-    final list = data['toiletList'] as List<dynamic>;
-    return list.map((e) => ToiletModel.fromJson(e as Map<String, dynamic>)).toList();
+    try {
+      final list = data['toiletList'] as List<dynamic>;
+      return list.map((e) => ToiletModel.fromJson(e as Map<String, dynamic>)).toList();
+    } catch (e) {
+      debugPrint('[API] 파싱 오류: $e');
+      debugPrint('[API] raw data: ${data['toiletList']?.toString().substring(0, 200)}');
+      rethrow;
+    }
   }
 
   Future<ToiletModel> getToiletDetail({required int seq}) async {
