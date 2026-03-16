@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import 'package:daeddong/data/models/toilet_model.dart';
 import 'package:daeddong/features/detail/providers/detail_provider.dart';
+import 'package:daeddong/features/favorites/providers/favorites_provider.dart';
 
 class DetailScreen extends ConsumerStatefulWidget {
   final int seq;
@@ -38,13 +39,11 @@ class _DetailScreenState extends ConsumerState<DetailScreen> {
     final openMinutes = open.hour * 60 + open.minute;
     final closeMinutes = close.hour * 60 + close.minute;
 
-    // 00:00 ~ 00:00 = 24시간 운영
     if (openMinutes == 0 && closeMinutes == 0) return true;
 
     if (closeMinutes > openMinutes) {
       return nowMinutes >= openMinutes && nowMinutes < closeMinutes;
     } else {
-      // 자정을 넘기는 경우
       return nowMinutes >= openMinutes || nowMinutes < closeMinutes;
     }
   }
@@ -58,6 +57,17 @@ class _DetailScreenState extends ConsumerState<DetailScreen> {
       return TimeOfDay(hour: hour, minute: minute);
     } catch (_) {
       return null;
+    }
+  }
+
+  // ─────────────────────── 즐겨찾기 토글 ───────────────────────────
+
+  void _toggleFavorite(ToiletModel toilet) {
+    final notifier = ref.read(favoritesProvider.notifier);
+    if (notifier.isFavorite(toilet.seq)) {
+      notifier.removeFavorite(toilet.seq!);
+    } else {
+      notifier.addFavorite(toilet);
     }
   }
 
@@ -121,6 +131,9 @@ class _DetailScreenState extends ConsumerState<DetailScreen> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(detailProvider);
+    final isFavorite = ref.watch(
+      favoritesProvider.select((list) => list.any((t) => t.seq == widget.seq)),
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -133,12 +146,10 @@ class _DetailScreenState extends ConsumerState<DetailScreen> {
           if (state.toilet != null)
             IconButton(
               icon: Icon(
-                state.isFavorite ? Icons.favorite : Icons.favorite_border,
-                color: state.isFavorite ? Colors.red : null,
+                isFavorite ? Icons.favorite : Icons.favorite_border,
+                color: isFavorite ? Colors.red : null,
               ),
-              onPressed: () {
-                ref.read(detailProvider.notifier).toggleFavorite(widget.seq);
-              },
+              onPressed: () => _toggleFavorite(state.toilet!),
             ),
         ],
       ),

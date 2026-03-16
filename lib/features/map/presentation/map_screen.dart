@@ -11,6 +11,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import 'package:daeddong/core/constants/app_constants.dart';
 import 'package:daeddong/data/models/toilet_model.dart';
+import 'package:daeddong/features/favorites/providers/favorites_provider.dart';
 import 'package:daeddong/features/map/providers/map_provider.dart';
 
 // 필터 칩 바 높이 (포지셔닝 계산에 사용)
@@ -870,7 +871,7 @@ class _ToiletTypeChip extends StatelessWidget {
 
 // ─────────────────────── 바텀시트 위젯 ──────────────────────────────
 
-class _ToiletBottomSheet extends StatelessWidget {
+class _ToiletBottomSheet extends ConsumerWidget {
   final ToiletModel toilet;
   final VoidCallback onDetailTap;
   final VoidCallback onNavigateTap;
@@ -882,7 +883,20 @@ class _ToiletBottomSheet extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isFavorite = ref.watch(
+      favoritesProvider.select((list) => list.any((t) => t.seq == toilet.seq)),
+    );
+
+    void toggleFavorite() {
+      final notifier = ref.read(favoritesProvider.notifier);
+      if (isFavorite) {
+        notifier.removeFavorite(toilet.seq!);
+      } else {
+        notifier.addFavorite(toilet);
+      }
+    }
+
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
@@ -903,15 +917,30 @@ class _ToiletBottomSheet extends StatelessWidget {
             ),
             const SizedBox(height: 16),
 
-            // 이름
-            Text(
-              toilet.name ?? '화장실',
-              style:
-                  const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+            // 이름 + 즐겨찾기 아이콘
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    toilet.name ?? '화장실',
+                    style: const TextStyle(
+                        fontSize: 18, fontWeight: FontWeight.bold),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(
+                    isFavorite ? Icons.favorite : Icons.favorite_border,
+                    color: isFavorite ? Colors.red : Colors.grey.shade400,
+                  ),
+                  onPressed: toggleFavorite,
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                ),
+              ],
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 8),
 
             // 주소
             if (toilet.address != null)
