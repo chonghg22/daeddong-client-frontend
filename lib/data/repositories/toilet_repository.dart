@@ -9,7 +9,7 @@ class ToiletRepository {
   Future<List<ToiletModel>> getToiletList({
     required double latitude,
     required double longitude,
-    double? distance,
+    required double distance,
   }) {
     return _dataSource.getToiletList(
       latitude: latitude,
