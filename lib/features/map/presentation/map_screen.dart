@@ -212,20 +212,32 @@ class _MapScreenState extends ConsumerState<MapScreen> {
       await _mapController?.clearOverlays();
       if (_mapController == null) return;
 
-      final markers = toilets
+      final validToilets = toilets
           .where((t) => t.latitude != null && t.longitude != null)
-          .map((t) {
-            final marker = NClusterableMarker(
-              id: 'toilet_${t.seq ?? math.Random().nextInt(999999)}',
-              position: NLatLng(t.latitude!, t.longitude!),
-            );
-            marker.setOnTapListener((_) => _showToiletBottomSheet(t));
-            return marker;
-          })
-          .toSet();
+          .toList();
 
-      if (markers.isNotEmpty && _mapController != null) {
-        await _mapController!.addOverlayAll(markers);
+      if (validToilets.isEmpty || _mapController == null) return;
+
+      // 마커 생성 (리스너 설정 전)
+      final pairs = <(NClusterableMarker, ToiletModel)>[];
+      for (final t in validToilets) {
+        final marker = NClusterableMarker(
+          id: 'toilet_${t.seq ?? math.Random().nextInt(999999)}',
+          position: NLatLng(t.latitude!, t.longitude!),
+        );
+        pairs.add((marker, t));
+      }
+
+      // 마커 추가 후 리스너 설정 (네이티브 등록 이후에만 유효)
+      await _mapController!.addOverlayAll(pairs.map((p) => p.$1).toSet());
+      if (_mapController == null) return;
+
+      for (final (marker, toilet) in pairs) {
+        try {
+          marker.setOnTapListener((_) => _showToiletBottomSheet(toilet));
+        } catch (e) {
+          debugPrint('[MapScreen] setOnTapListener 오류: $e');
+        }
       }
     } catch (e) {
       debugPrint('[MapScreen] _updateMarkers 오류: $e');
