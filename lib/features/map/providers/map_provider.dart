@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:daeddong/core/constants/app_constants.dart';
 import 'package:daeddong/data/models/toilet_model.dart';
 import 'package:daeddong/data/repositories/toilet_repository.dart';
 
@@ -101,7 +102,12 @@ class MapState {
 class MapNotifier extends StateNotifier<MapState> {
   final ToiletRepository _repository;
 
-  MapNotifier(this._repository) : super(const MapState());
+  MapNotifier(this._repository)
+      : super(MapState(
+          filterState: FilterState(
+            hasBaby: AppConstants.flavor == 'babytoilet',
+          ),
+        ));
 
   Future<void> loadToilets(double lat, double lng, double distance) async {
     state = state.copyWith(isLoading: true, clearError: true);

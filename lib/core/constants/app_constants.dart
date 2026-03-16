@@ -14,7 +14,7 @@ class AppConstants {
   // ── AdMob ──────────────────────────────────────────────────────────
   // dart.vm.product = true in release (AOT) mode, false in debug/profile
   static const bool _isRelease = bool.fromEnvironment('dart.vm.product');
-  static const String _flavor = String.fromEnvironment(
+  static const String flavor = String.fromEnvironment(
     'FLAVOR',
     defaultValue: 'daeddong',
   );
@@ -28,7 +28,7 @@ class AppConstants {
 
   static String get bannerAdUnitId {
     if (!_isRelease) return _testBannerAdUnitId;
-    return _flavor == 'babytoilet'
+    return flavor == 'babytoilet'
         ? _babytoiletBannerAdUnitId
         : _daeddongBannerAdUnitId;
   }
