@@ -45,10 +45,10 @@ class ToiletRemoteDataSource {
     String? content,
   }) async {
     await _supabase.from('report').insert({
-      'TOILET_SEQ': toiletSeq,
-      'TOILET_NAME': toiletName,
-      'REPORT_TYPE': reportType,
-      'CONTENT': content,
+      'toilet_seq': toiletSeq,
+      'toilet_name': toiletName,
+      'report_type': reportType,
+      'content': content,
     });
   }
 }
