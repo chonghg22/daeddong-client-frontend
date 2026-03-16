@@ -32,7 +32,7 @@ class ToiletRemoteDataSource {
     final result = await _supabase
         .from('toilet')
         .select()
-        .eq('SEQ', seq)
+        .eq('seq', seq)
         .single();
 
     return ToiletModel.fromJson(result);
