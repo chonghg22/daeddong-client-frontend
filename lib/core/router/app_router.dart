@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:daeddong/features/map/presentation/map_screen.dart';
 import 'package:daeddong/features/detail/presentation/detail_screen.dart';
 import 'package:daeddong/features/favorites/presentation/favorites_screen.dart';
+import 'package:daeddong/features/report/presentation/report_screen.dart';
 
 final appRouter = GoRouter(
   initialLocation: '/map',
@@ -26,6 +27,14 @@ final appRouter = GoRouter(
       builder: (context, state) {
         final seq = int.parse(state.pathParameters['seq']!);
         return DetailScreen(seq: seq);
+      },
+    ),
+    GoRoute(
+      path: '/report/:seq',
+      builder: (context, state) {
+        final seq = int.parse(state.pathParameters['seq']!);
+        final name = state.uri.queryParameters['name'] ?? '';
+        return ReportScreen(seq: seq, toiletName: name);
       },
     ),
   ],

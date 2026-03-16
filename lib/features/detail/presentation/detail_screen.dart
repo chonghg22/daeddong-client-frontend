@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'package:go_router/go_router.dart';
+
 import 'package:daeddong/data/models/toilet_model.dart';
 import 'package:daeddong/features/detail/providers/detail_provider.dart';
 import 'package:daeddong/features/favorites/providers/favorites_provider.dart';
@@ -288,6 +290,26 @@ class _DetailScreenState extends ConsumerState<DetailScreen> {
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 textStyle: const TextStyle(fontSize: 16),
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 12),
+
+          // ── 정보 오류 신고 ──
+          Center(
+            child: TextButton.icon(
+              onPressed: () {
+                final name =
+                    Uri.encodeComponent(toilet.name ?? '');
+                context.push('/report/${toilet.seq}?name=$name');
+              },
+              icon: Icon(Icons.flag_outlined,
+                  size: 16, color: Colors.grey.shade500),
+              label: Text(
+                '정보 오류 신고',
+                style: TextStyle(
+                    fontSize: 13, color: Colors.grey.shade500),
               ),
             ),
           ),
