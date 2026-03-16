@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:daeddong/data/repositories/toilet_repository.dart';
 import 'package:daeddong/features/map/providers/map_provider.dart';
@@ -48,6 +49,7 @@ class ReportNotifier extends StateNotifier<ReportState> {
       );
       state = state.copyWith(isLoading: false, isSuccess: true);
     } catch (e) {
+      debugPrint('[ReportProvider] submitReport 오류: $e');
       state = state.copyWith(isLoading: false, error: e.toString());
     }
   }

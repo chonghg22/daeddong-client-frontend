@@ -44,11 +44,18 @@ class ToiletRemoteDataSource {
     required String reportType,
     String? content,
   }) async {
-    await _supabase.from('report').insert({
-      'toilet_seq': toiletSeq,
-      'toilet_name': toiletName,
-      'report_type': reportType,
-      'content': content,
-    });
+    debugPrint('[Supabase] submitReport toiletSeq=$toiletSeq, reportType=$reportType');
+    try {
+      await _supabase.from('report').insert({
+        'toilet_seq': toiletSeq,
+        'toilet_name': toiletName,
+        'report_type': reportType,
+        'content': content,
+      });
+      debugPrint('[Supabase] submitReport 성공');
+    } catch (e) {
+      debugPrint('[Supabase] submitReport 오류: $e');
+      rethrow;
+    }
   }
 }
