@@ -5,11 +5,11 @@ import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:daeddong/core/constants/app_constants.dart';
+import 'package:daeddong/core/widgets/admob_banner_widget.dart';
 import 'package:daeddong/data/models/toilet_model.dart';
 import 'package:daeddong/features/favorites/providers/favorites_provider.dart';
 import 'package:daeddong/features/map/providers/map_provider.dart';
@@ -27,9 +27,6 @@ class MapScreen extends ConsumerStatefulWidget {
 class _MapScreenState extends ConsumerState<MapScreen> {
   NaverMapController? _mapController;
 
-  BannerAd? _bannerAd;
-  bool _bannerAdLoaded = false;
-
   bool _locationDenied = false;
   bool _showSearchHereButton = false;
 
@@ -46,27 +43,9 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   @override
   void initState() {
     super.initState();
-    _loadBannerAd();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _handleLocationPermission();
     });
-  }
-
-  // ───────────────────────────── AdMob ─────────────────────────────
-
-  void _loadBannerAd() {
-    _bannerAd = BannerAd(
-      adUnitId: 'ca-app-pub-3940256099942544/6300978111',
-      size: AdSize.banner,
-      request: const AdRequest(),
-      listener: BannerAdListener(
-        onAdLoaded: (_) => setState(() => _bannerAdLoaded = true),
-        onAdFailedToLoad: (ad, _) {
-          ad.dispose();
-          _bannerAd = null;
-        },
-      ),
-    )..load();
   }
 
   // ───────────────────────── 위치 권한 처리 ──────────────────────────
@@ -416,14 +395,6 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     );
   }
 
-  // ─────────────────────────── dispose ─────────────────────────────
-
-  @override
-  void dispose() {
-    _bannerAd?.dispose();
-    super.dispose();
-  }
-
   // ────────────────────────────── UI ───────────────────────────────
 
   @override
@@ -454,8 +425,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
       }
     });
 
-    final bannerHeight =
-        _bannerAdLoaded ? (_bannerAd?.size.height ?? 50).toDouble() : 0.0;
+    const double bannerHeight = 50.0;
     final topOffset = topPadding + (_locationDenied ? 44.0 : 0.0);
 
     return Scaffold(
@@ -583,17 +553,12 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             ),
 
           // ── AdMob 배너 ──
-          if (_bannerAdLoaded && _bannerAd != null)
-            Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
-              child: SizedBox(
-                width: double.infinity,
-                height: bannerHeight,
-                child: AdWidget(ad: _bannerAd!),
-              ),
-            ),
+          const Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: AdmobBannerWidget(),
+          ),
         ],
       ),
     );

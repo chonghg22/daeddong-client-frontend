@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:daeddong/core/widgets/admob_banner_widget.dart';
 import 'package:daeddong/data/models/toilet_model.dart';
 import 'package:daeddong/features/favorites/providers/favorites_provider.dart';
 
@@ -24,6 +25,7 @@ class FavoritesScreen extends ConsumerWidget {
             ),
         ],
       ),
+      bottomNavigationBar: const AdmobBannerWidget(),
       body: favorites.isEmpty
           ? _buildEmptyState()
           : ListView.separated(
