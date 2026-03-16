@@ -51,6 +51,24 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   // ───────────────────────── 위치 권한 처리 ──────────────────────────
 
   Future<void> _handleLocationPermission() async {
+    final current = await Permission.location.status;
+
+    // 이미 허용된 경우 바로 위치 이동
+    if (current.isGranted) {
+      await _moveToCurrentLocation();
+      return;
+    }
+
+    // 영구 거부된 경우 설정 다이얼로그
+    if (current.isPermanentlyDenied) {
+      if (mounted) {
+        setState(() => _locationDenied = true);
+        _showOpenSettingsDialog();
+      }
+      return;
+    }
+
+    // 아직 미결정(denied)인 경우 안내 팝업 → 시스템 팝업
     final confirmed = await _showLocationGuideDialog();
     if (!confirmed || !mounted) return;
 
