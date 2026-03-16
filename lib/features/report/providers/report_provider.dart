@@ -1,7 +1,6 @@
-import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-import 'package:daeddong/core/constants/app_constants.dart';
+import 'package:daeddong/data/repositories/toilet_repository.dart';
+import 'package:daeddong/features/map/providers/map_provider.dart';
 
 class ReportState {
   final bool isLoading;
@@ -29,11 +28,9 @@ class ReportState {
 }
 
 class ReportNotifier extends StateNotifier<ReportState> {
-  final Dio _dio;
+  final ToiletRepository _repository;
 
-  ReportNotifier()
-      : _dio = Dio(BaseOptions(baseUrl: AppConstants.baseUrl)),
-        super(const ReportState());
+  ReportNotifier(this._repository) : super(const ReportState());
 
   Future<void> submitReport({
     required int toiletSeq,
@@ -43,21 +40,12 @@ class ReportNotifier extends StateNotifier<ReportState> {
   }) async {
     state = state.copyWith(isLoading: true, clearError: true, isSuccess: false);
     try {
-      final response = await _dio.post(
-        '/report/insertReport',
-        data: {
-          'toiletSeq': toiletSeq,
-          'toiletName': toiletName,
-          'reportType': reportType,
-          if (content != null && content.isNotEmpty) 'content': content,
-        },
+      await _repository.submitReport(
+        toiletSeq: toiletSeq,
+        toiletName: toiletName,
+        reportType: reportType,
+        content: content,
       );
-
-      final data = response.data as Map<String, dynamic>;
-      if (data['resultCode'] != '0000') {
-        throw Exception('API 오류: ${data['resultCode']}');
-      }
-
       state = state.copyWith(isLoading: false, isSuccess: true);
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
@@ -67,5 +55,5 @@ class ReportNotifier extends StateNotifier<ReportState> {
 
 final reportProvider =
     StateNotifierProvider.autoDispose<ReportNotifier, ReportState>(
-  (ref) => ReportNotifier(),
+  (ref) => ReportNotifier(ref.watch(toiletRepositoryProvider)),
 );

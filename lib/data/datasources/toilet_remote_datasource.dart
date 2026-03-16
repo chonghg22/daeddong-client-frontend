@@ -1,12 +1,9 @@
 import 'package:flutter/foundation.dart';
-import 'package:dio/dio.dart';
-import 'package:daeddong/core/constants/app_constants.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:daeddong/data/models/toilet_model.dart';
 
 class ToiletRemoteDataSource {
-  final Dio _dio;
-
-  ToiletRemoteDataSource() : _dio = Dio(BaseOptions(baseUrl: AppConstants.baseUrl));
+  SupabaseClient get _supabase => Supabase.instance.client;
 
   Future<List<ToiletModel>> getToiletList({
     required double latitude,
@@ -17,46 +14,42 @@ class ToiletRemoteDataSource {
       throw Exception('유효하지 않은 위치 또는 거리 값입니다.');
     }
 
-    debugPrint('BASE_URL: ${AppConstants.baseUrl}');
-    debugPrint('[API] getToiletList lat=$latitude, lng=$longitude, distance=$distance');
+    debugPrint('[Supabase] get_nearby_toilets lat=$latitude, lng=$longitude, distance=$distance');
 
-    final response = await _dio.get(
-      '/toiletList',
-      queryParameters: {
-        'latitude': latitude,
-        'longitude': longitude,
-        'distance': distance,
-      },
-    );
+    final result = await _supabase.rpc('get_nearby_toilets', params: {
+      'lat': latitude,
+      'lng': longitude,
+      'distance_meters': distance,
+    });
 
-    final data = response.data as Map<String, dynamic>;
-    debugPrint('[API] response resultCode=${data['resultCode']}, toiletList length=${(data['toiletList'] as List?)?.length}');
-
-    if (data['resultCode'] != '0000') {
-      throw Exception('API 오류: ${data['resultCode']}');
-    }
-
-    try {
-      final list = data['toiletList'] as List<dynamic>;
-      return list.map((e) => ToiletModel.fromJson(e as Map<String, dynamic>)).toList();
-    } catch (e) {
-      debugPrint('[API] 파싱 오류: $e');
-      debugPrint('[API] raw data: ${data['toiletList']?.toString().substring(0, 200)}');
-      rethrow;
-    }
+    debugPrint('[Supabase] get_nearby_toilets length=${(result as List).length}');
+    return result.map((e) => ToiletModel.fromJson(e as Map<String, dynamic>)).toList();
   }
 
   Future<ToiletModel> getToiletDetail({required int seq}) async {
-    final response = await _dio.get(
-      '/toiletDetail',
-      queryParameters: {'seq': seq},
-    );
+    debugPrint('[Supabase] getToiletDetail seq=$seq');
 
-    final data = response.data as Map<String, dynamic>;
-    if (data['resultCode'] != '0000') {
-      throw Exception('API 오류: ${data['resultCode']}');
-    }
+    final result = await _supabase
+        .schema('daeddong')
+        .from('TOILET')
+        .select()
+        .eq('SEQ', seq)
+        .single();
 
-    return ToiletModel.fromJson(data['toiletInfo'] as Map<String, dynamic>);
+    return ToiletModel.fromJson(result);
+  }
+
+  Future<void> submitReport({
+    required int toiletSeq,
+    required String toiletName,
+    required String reportType,
+    String? content,
+  }) async {
+    await _supabase.schema('daeddong').from('REPORT').insert({
+      'TOILET_SEQ': toiletSeq,
+      'TOILET_NAME': toiletName,
+      'REPORT_TYPE': reportType,
+      if (content != null && content.isNotEmpty) 'CONTENT': content,
+    });
   }
 }

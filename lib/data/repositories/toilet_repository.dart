@@ -21,4 +21,18 @@ class ToiletRepository {
   Future<ToiletModel> getToiletDetail({required int seq}) {
     return _dataSource.getToiletDetail(seq: seq);
   }
+
+  Future<void> submitReport({
+    required int toiletSeq,
+    required String toiletName,
+    required String reportType,
+    String? content,
+  }) {
+    return _dataSource.submitReport(
+      toiletSeq: toiletSeq,
+      toiletName: toiletName,
+      reportType: reportType,
+      content: content,
+    );
+  }
 }

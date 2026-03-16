@@ -3,10 +3,9 @@ class AppConstants {
 
   static const String naverMapClientId = 'REDACTED_NAVER_CLIENT_ID';
 
-  static const String baseUrl = String.fromEnvironment(
-    'BASE_URL',
-    defaultValue: 'https://daeddong-client-backend-production.up.railway.app',
-  );
+  static const String supabaseUrl = 'https://REDACTED_SUPABASE_HOST';
+  static const String supabaseAnonKey =
+      'REDACTED_SUPABASE_ANON_KEY';
 
   static const double defaultLat = 37.5665;
   static const double defaultLng = 126.9780;
