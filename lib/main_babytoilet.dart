@@ -12,6 +12,7 @@ void main() async {
   await Supabase.initialize(
     url: AppConstants.supabaseUrl,
     anonKey: AppConstants.supabaseAnonKey,
+    postgrestOptions: const PostgrestClientOptions(schema: 'daeddong'),
   );
   await FlutterNaverMap().init(
     clientId: AppConstants.naverMapClientId,
