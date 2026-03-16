@@ -48,7 +48,7 @@ class ToiletRemoteDataSource {
 
   Future<ToiletModel> getToiletDetail({required int seq}) async {
     final response = await _dio.get(
-      '/toilet/toiletInfo',
+      '/toiletDetail',
       queryParameters: {'seq': seq},
     );
 
