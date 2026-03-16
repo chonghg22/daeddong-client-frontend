@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
@@ -29,10 +30,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   NaverMapController? _mapController;
 
   bool _locationDenied = false;
-  bool _showSearchHereButton = false;
 
-  NLatLng _lastSearchedPosition =
-      const NLatLng(AppConstants.defaultLat, AppConstants.defaultLng);
   NLatLng _currentCameraPosition =
       const NLatLng(AppConstants.defaultLat, AppConstants.defaultLng);
   double _currentZoom = 15;
@@ -40,7 +38,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   bool _mapReady = false;
   bool _isUpdatingMarkers = false;
 
-  static const double _searchButtonThresholdDeg = 0.005;
+  Timer? _loadDebounce;
 
   @override
   void initState() {
@@ -48,6 +46,12 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _handleLocationPermission();
     });
+  }
+
+  @override
+  void dispose() {
+    _loadDebounce?.cancel();
+    super.dispose();
   }
 
   // ───────────────────────── 위치 권한 처리 ──────────────────────────
@@ -140,7 +144,6 @@ class _MapScreenState extends ConsumerState<MapScreen> {
       );
       final latLng = NLatLng(position.latitude, position.longitude);
       _currentCameraPosition = latLng;
-      _lastSearchedPosition = latLng;
       await _mapController?.updateCamera(
         NCameraUpdate.withParams(target: latLng, zoom: 15),
       );
@@ -164,17 +167,11 @@ class _MapScreenState extends ConsumerState<MapScreen> {
           position.longitude,
           distance,
         );
-    _lastSearchedPosition = position;
-    if (mounted) setState(() => _showSearchHereButton = false);
   }
 
   // ──────────────────────── 카메라 이벤트 ───────────────────────────
 
-  void _onCameraChange(NCameraUpdateReason reason, bool isAnimated) {
-    if (!isAnimated && _mapReady && !_showSearchHereButton) {
-      if (mounted) setState(() => _showSearchHereButton = true);
-    }
-  }
+  void _onCameraChange(NCameraUpdateReason reason, bool isAnimated) {}
 
   Future<void> _onCameraIdle() async {
     final cameraPosition = await _mapController?.getCameraPosition();
@@ -189,17 +186,11 @@ class _MapScreenState extends ConsumerState<MapScreen> {
       return;
     }
 
-    final latDiff =
-        (_currentCameraPosition.latitude - _lastSearchedPosition.latitude).abs();
-    final lngDiff =
-        (_currentCameraPosition.longitude - _lastSearchedPosition.longitude).abs();
-
-    if (latDiff > _searchButtonThresholdDeg ||
-        lngDiff > _searchButtonThresholdDeg) {
-      if (mounted) setState(() => _showSearchHereButton = true);
-    } else {
-      _loadToilets(_currentCameraPosition, _currentZoom);
-    }
+    // 500ms debounce: 지도 이동이 끝나면 자동 로드
+    _loadDebounce?.cancel();
+    _loadDebounce = Timer(const Duration(milliseconds: 500), () {
+      if (mounted) _loadToilets(_currentCameraPosition, _currentZoom);
+    });
   }
 
   // ────────────────────────── 마커 처리 ────────────────────────────
@@ -444,8 +435,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     final mapState = ref.watch(mapProvider);
 
     // filteredToiletList 변경 → 마커 갱신 + 빈 결과 토스트
-    ref.listen(mapProvider.select((s) => s.filteredToiletList),
-        (prev, filtered) {
+    ref.listen(mapProvider.select((s) => s.filteredToiletList), (prev, filtered) {
       _updateMarkers(filtered);
       if (filtered.isEmpty &&
           prev != null &&
@@ -518,31 +508,6 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             right: 0,
             child: _buildFilterChipBar(mapState.filterState),
           ),
-
-          // ── 이 지역 검색 버튼 ──
-          if (_showSearchHereButton)
-            Positioned(
-              top: topOffset + _kFilterBarHeight + 8,
-              left: 0,
-              right: 0,
-              child: Center(
-                child: ElevatedButton.icon(
-                  onPressed: () =>
-                      _loadToilets(_currentCameraPosition, _currentZoom),
-                  icon: const Icon(Icons.search, size: 18),
-                  label: const Text('이 지역 검색'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: Colors.black87,
-                    elevation: 4,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20)),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 10),
-                  ),
-                ),
-              ),
-            ),
 
           // ── 로딩 인디케이터 ──
           if (mapState.isLoading)

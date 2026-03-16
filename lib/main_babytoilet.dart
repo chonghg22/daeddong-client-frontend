@@ -28,6 +28,7 @@ class BabyToiletApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       title: '기저귀갈이대',
+      debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
       routerConfig: appRouter,
     );

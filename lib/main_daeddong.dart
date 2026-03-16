@@ -28,6 +28,7 @@ class DaeddongApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       title: '대똥여지도',
+      debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
       routerConfig: appRouter,
     );
