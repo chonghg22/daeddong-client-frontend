@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:daeddong/data/models/toilet_model.dart';
@@ -40,6 +41,7 @@ class DetailNotifier extends StateNotifier<DetailState> {
       final toilet = await _repository.getToiletDetail(seq: seq);
       state = state.copyWith(toilet: toilet, isLoading: false);
     } catch (e) {
+      debugPrint('[DetailProvider] loadToiletDetail 오류: $e');
       state = state.copyWith(isLoading: false, error: e.toString());
     }
   }
