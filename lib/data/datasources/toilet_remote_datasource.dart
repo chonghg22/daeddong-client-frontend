@@ -17,6 +17,7 @@ class ToiletRemoteDataSource {
       throw Exception('유효하지 않은 위치 또는 거리 값입니다.');
     }
 
+    debugPrint('BASE_URL: ${AppConstants.baseUrl}');
     debugPrint('[API] getToiletList lat=$latitude, lng=$longitude, distance=$distance');
 
     final response = await _dio.get(

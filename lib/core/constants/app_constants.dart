@@ -1,11 +1,11 @@
 class AppConstants {
   AppConstants._();
 
-  static const String naverMapClientId = 'f2lsyu7q3s';
+  static const String naverMapClientId = 'REDACTED_NAVER_CLIENT_ID';
 
   static const String baseUrl = String.fromEnvironment(
     'BASE_URL',
-    defaultValue: 'http://localhost:16060',
+    defaultValue: 'https://daeddong-client-backend-production.up.railway.app',
   );
 
   static const double defaultLat = 37.5665;
