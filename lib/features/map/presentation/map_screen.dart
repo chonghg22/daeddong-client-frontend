@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -207,6 +208,10 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     if (_mapController == null || _isUpdatingMarkers) return;
     _isUpdatingMarkers = true;
     try {
+      // 기존 마커 전체 제거
+      await _mapController?.clearOverlays();
+      if (_mapController == null) return;
+
       final markers = toilets
           .where((t) => t.latitude != null && t.longitude != null)
           .map((t) {
@@ -219,12 +224,11 @@ class _MapScreenState extends ConsumerState<MapScreen> {
           })
           .toSet();
 
-      await _mapController!.clearOverlays(type: NOverlayType.clusterableMarker);
       if (markers.isNotEmpty && _mapController != null) {
         await _mapController!.addOverlayAll(markers);
       }
     } catch (e) {
-      // flutter_naver_map race condition 무시
+      debugPrint('[MapScreen] _updateMarkers 오류: $e');
     } finally {
       _isUpdatingMarkers = false;
     }
