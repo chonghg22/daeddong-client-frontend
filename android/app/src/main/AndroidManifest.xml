@@ -11,7 +11,7 @@
 
         <meta-data
             android:name="com.naver.maps.map.CLIENT_ID"
-            android:value="f2lsyu7q3s"/>
+            android:value="REDACTED_NAVER_CLIENT_ID"/>
 
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
