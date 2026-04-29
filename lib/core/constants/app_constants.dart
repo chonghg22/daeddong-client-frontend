@@ -1,17 +1,17 @@
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 class AppConstants {
   AppConstants._();
 
-  static const String naverMapClientId = 'REDACTED_NAVER_CLIENT_ID';
+  static String get naverMapClientId => dotenv.env['NAVER_MAP_CLIENT_ID']!;
 
-  static const String supabaseUrl = 'https://REDACTED_SUPABASE_HOST';
-  static const String supabaseAnonKey =
-      'REDACTED_SUPABASE_ANON_KEY';
+  static String get supabaseUrl => dotenv.env['SUPABASE_URL']!;
+  static String get supabaseAnonKey => dotenv.env['SUPABASE_ANON_KEY']!;
 
   static const double defaultLat = 37.5665;
   static const double defaultLng = 126.9780;
 
   // ── AdMob ──────────────────────────────────────────────────────────
-  // dart.vm.product = true in release (AOT) mode, false in debug/profile
   static const bool _isRelease = bool.fromEnvironment('dart.vm.product');
   static const String flavor = String.fromEnvironment(
     'FLAVOR',
@@ -20,15 +20,11 @@ class AppConstants {
 
   static const String _testBannerAdUnitId =
       'ca-app-pub-3940256099942544/6300978111';
-  static const String _daeddongBannerAdUnitId =
-      'REDACTED_ADMOB_DAEDDONG';
-  static const String _babytoiletBannerAdUnitId =
-      'REDACTED_ADMOB_BABYTOILET';
 
   static String get bannerAdUnitId {
     if (!_isRelease) return _testBannerAdUnitId;
     return flavor == 'babytoilet'
-        ? _babytoiletBannerAdUnitId
-        : _daeddongBannerAdUnitId;
+        ? dotenv.env['ADMOB_BABYTOILET_BANNER_ID']!
+        : dotenv.env['ADMOB_DAEDDONG_BANNER_ID']!;
   }
 }

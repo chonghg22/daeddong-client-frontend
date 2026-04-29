@@ -13,6 +13,12 @@ if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 }
 
+val envProperties = Properties()
+val envFile = rootProject.file(".env")
+if (envFile.exists()) {
+    envProperties.load(FileInputStream(envFile))
+}
+
 android {
     namespace = "kr.co.daeddong"
     compileSdk = flutter.compileSdkVersion
@@ -33,6 +39,8 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        manifestPlaceholders["NAVER_MAP_CLIENT_ID"] =
+            envProperties.getProperty("NAVER_MAP_CLIENT_ID", "")
     }
 
     signingConfigs {
