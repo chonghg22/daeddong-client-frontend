@@ -6,6 +6,8 @@ import 'package:daeddong/features/detail/presentation/detail_screen.dart';
 import 'package:daeddong/features/favorites/presentation/favorites_screen.dart';
 import 'package:daeddong/features/report/presentation/report_screen.dart';
 
+int? parseRouteSeq(String? rawSeq) => int.tryParse(rawSeq ?? '');
+
 final appRouter = GoRouter(
   initialLocation: '/map',
   routes: [
@@ -25,14 +27,20 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/detail/:seq',
       builder: (context, state) {
-        final seq = int.parse(state.pathParameters['seq']!);
+        final seq = parseRouteSeq(state.pathParameters['seq']);
+        if (seq == null) {
+          return const _RouteErrorScreen(message: '잘못된 상세 경로입니다.');
+        }
         return DetailScreen(seq: seq);
       },
     ),
     GoRoute(
       path: '/report/:seq',
       builder: (context, state) {
-        final seq = int.parse(state.pathParameters['seq']!);
+        final seq = parseRouteSeq(state.pathParameters['seq']);
+        if (seq == null) {
+          return const _RouteErrorScreen(message: '잘못된 제보 경로입니다.');
+        }
         final name = state.uri.queryParameters['name'] ?? '';
         return ReportScreen(seq: seq, toiletName: name);
       },
@@ -73,6 +81,37 @@ class _MainShell extends StatelessWidget {
             label: '즐겨찾기',
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _RouteErrorScreen extends StatelessWidget {
+  final String message;
+
+  const _RouteErrorScreen({required this.message});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('경로 오류')),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.error_outline, size: 48, color: Colors.red),
+              const SizedBox(height: 12),
+              Text(message, style: const TextStyle(fontSize: 15)),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () => context.go('/map'),
+                child: const Text('지도로 돌아가기'),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

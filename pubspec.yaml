@@ -2,7 +2,7 @@ name: daeddong
 description: "대똥여지도 / 기저귀갈이대 Flutter 앱"
 publish_to: 'none'
 
-version: 1.0.0+3
+version: 1.0.0+4
 
 environment:
   sdk: ^3.11.1

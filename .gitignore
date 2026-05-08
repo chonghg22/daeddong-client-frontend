@@ -46,7 +46,17 @@ app.*.map.json
 
 # Keystore
 android/key.properties
+key.properties
 *.jks
 
 # Environment
 .env
+
+# Local tooling
+.claude/
+
+# Supabase local state
+supabase/.temp/
+
+# Temporary raster previews
+marketing/playstore/exports/**/*.svg.png

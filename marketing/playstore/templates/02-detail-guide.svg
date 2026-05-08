@@ -1,0 +1,58 @@
+<svg width="1080" height="1920" viewBox="0 0 1080 1920" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg2" x1="109" y1="130" x2="968" y2="1860" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#173A27"/>
+      <stop offset="1" stop-color="#0F2418"/>
+    </linearGradient>
+    <linearGradient id="phone2" x1="236" y1="630" x2="828" y2="1514" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFDF7"/>
+      <stop offset="1" stop-color="#F7F5EE"/>
+    </linearGradient>
+    <filter id="shadow2" x="180" y="548" width="720" height="1106" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+      <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+      <feOffset dy="28"/>
+      <feGaussianBlur stdDeviation="34"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0.011765 0 0 0 0 0.0627451 0 0 0 0 0.0352941 0 0 0 0.26 0"/>
+      <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_2_1"/>
+      <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_2_1" result="shape"/>
+    </filter>
+  </defs>
+  <rect width="1080" height="1920" fill="url(#bg2)"/>
+  <circle cx="910" cy="250" r="190" fill="#2F7146" fill-opacity="0.36"/>
+  <circle cx="136" cy="1546" r="248" fill="#1C4D31"/>
+  <text x="72" y="220" fill="#F7F9F7" font-family="Pretendard, Apple SD Gothic Neo, sans-serif" font-size="82" font-weight="800">운영시간부터</text>
+  <text x="72" y="312" fill="#F7F9F7" font-family="Pretendard, Apple SD Gothic Neo, sans-serif" font-size="82" font-weight="800">편의시설까지</text>
+  <text x="72" y="388" fill="#B7D2C0" font-family="Pretendard, Apple SD Gothic Neo, sans-serif" font-size="34" font-weight="500">상세 정보와 길찾기 기능을 한 번에 확인하세요</text>
+  <g>
+    <rect x="72" y="460" width="194" height="58" rx="29" fill="#285E39"/>
+    <text x="112" y="499" fill="#E4FFE8" font-family="Pretendard, Apple SD Gothic Neo, sans-serif" font-size="28" font-weight="700">상세 정보</text>
+    <rect x="282" y="460" width="170" height="58" rx="29" fill="#214F31"/>
+    <text x="322" y="499" fill="#CDE4D3" font-family="Pretendard, Apple SD Gothic Neo, sans-serif" font-size="28" font-weight="700">길찾기</text>
+  </g>
+  <g filter="url(#shadow2)">
+    <rect x="224" y="604" width="632" height="970" rx="56" fill="url(#phone2)"/>
+    <rect x="256" y="652" width="568" height="874" rx="36" fill="#F8F6EF"/>
+    <rect x="300" y="700" width="228" height="22" rx="11" fill="#A6C8AC"/>
+    <rect x="300" y="756" width="480" height="116" rx="24" fill="white"/>
+    <rect x="332" y="792" width="104" height="18" rx="9" fill="#A6C8AC"/>
+    <rect x="332" y="828" width="286" height="16" rx="8" fill="#D3DDD7"/>
+    <rect x="640" y="790" width="108" height="42" rx="21" fill="#D8F5B5"/>
+    <text x="662" y="819" fill="#214B1F" font-family="Pretendard, Apple SD Gothic Neo, sans-serif" font-size="20" font-weight="700">운영중</text>
+    <rect x="300" y="900" width="480" height="204" rx="24" fill="white"/>
+    <rect x="332" y="946" width="146" height="18" rx="9" fill="#D9E4DE"/>
+    <rect x="332" y="984" width="312" height="18" rx="9" fill="#D9E4DE"/>
+    <rect x="332" y="1026" width="270" height="18" rx="9" fill="#D9E4DE"/>
+    <circle cx="692" cy="960" r="18" fill="#3FAE5D"/>
+    <circle cx="692" cy="1002" r="18" fill="#3FAE5D"/>
+    <circle cx="692" cy="1044" r="18" fill="#FDB515"/>
+    <rect x="300" y="1132" width="480" height="170" rx="24" fill="#173726"/>
+    <rect x="334" y="1172" width="120" height="20" rx="10" fill="#7BB38D"/>
+    <rect x="334" y="1210" width="210" height="16" rx="8" fill="#5B8566"/>
+    <rect x="576" y="1162" width="172" height="74" rx="24" fill="#FDB515"/>
+    <text x="610" y="1210" fill="#5A3500" font-family="Pretendard, Apple SD Gothic Neo, sans-serif" font-size="28" font-weight="800">길안내</text>
+    <rect x="300" y="1330" width="480" height="150" rx="24" fill="white"/>
+    <rect x="332" y="1366" width="156" height="18" rx="9" fill="#D9E4DE"/>
+    <rect x="332" y="1404" width="320" height="18" rx="9" fill="#D9E4DE"/>
+  </g>
+</svg>

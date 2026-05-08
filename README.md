@@ -1,6 +1,6 @@
-# 대똥여지도 / 기저귀갈이대 (daeddong)
+# 대똥여지도 (daeddong)
 
-Flutter 기반 공중화장실·기저귀갈이대 위치 지도 앱. 하나의 코드베이스에서 두 개의 앱(flavor)을 빌드한다.
+Flutter 기반 공중화장실 위치 지도 앱.
 
 ---
 
@@ -24,15 +24,11 @@ Flutter 기반 공중화장실·기저귀갈이대 위치 지도 앱. 하나의 
 | Flavor | applicationId | 앱 이름 | AdMob App ID |
 |--------|--------------|---------|-------------|
 | `daeddong` | `kr.co.daeddong` | 대똥여지도 | `ca-app-pub-1242280591895560~...` |
-| `babytoilet` | `kr.co.babytoilet` | 기저귀갈이대 | `ca-app-pub-1242280591895560~...` |
 
 빌드 명령:
 ```bash
 # daeddong flavor
 flutter run --flavor daeddong -t lib/main_daeddong.dart
-
-# babytoilet flavor
-flutter run --flavor babytoilet -t lib/main_babytoilet.dart
 ```
 
 ---
@@ -43,7 +39,6 @@ flutter run --flavor babytoilet -t lib/main_babytoilet.dart
 lib/
 ├── main.dart                   # 기본 진입점
 ├── main_daeddong.dart          # daeddong flavor 진입점
-├── main_babytoilet.dart        # babytoilet flavor 진입점
 │
 ├── core/
 │   ├── constants/
@@ -103,8 +98,9 @@ lib/
 
 ### Supabase
 - URL: `https://REDACTED_SUPABASE_HOST`
-- Anon Key: `app_constants.dart`에 하드코딩
-- 테이블: 화장실/기저귀갈이대 위치 데이터
+- Anon Key: `.env`에서 로드
+- 테이블: 화장실 위치 데이터
+- 동기화 자산: `supabase/`, `docs/supabase-sync-runbook.md`
 
 ### 네이버 지도 API
 - Client ID: `REDACTED_NAVER_CLIENT_ID`
@@ -113,11 +109,10 @@ lib/
 ### Google AdMob
 - 릴리즈/디버그 자동 전환 (`dart.vm.product` 환경변수 활용)
 - 디버그: 공식 테스트 광고 단위 ID 사용
-- 릴리즈: flavor별 실제 광고 단위 ID 사용
+- 릴리즈: 실제 광고 단위 ID 사용
 
 ### Google Play 앱 등록
 - daeddong: `kr.co.daeddong`
-- babytoilet: `kr.co.babytoilet`
 - 서명 키: `android/key.properties` + keystore 파일 (별도 관리)
 
 ---

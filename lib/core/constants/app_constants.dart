@@ -13,18 +13,16 @@ class AppConstants {
 
   // ── AdMob ──────────────────────────────────────────────────────────
   static const bool _isRelease = bool.fromEnvironment('dart.vm.product');
-  static const String flavor = String.fromEnvironment(
-    'FLAVOR',
-    defaultValue: 'daeddong',
-  );
 
   static const String _testBannerAdUnitId =
       'ca-app-pub-3940256099942544/6300978111';
 
   static String get bannerAdUnitId {
     if (!_isRelease) return _testBannerAdUnitId;
-    return flavor == 'babytoilet'
-        ? dotenv.env['ADMOB_BABYTOILET_BANNER_ID']!
-        : dotenv.env['ADMOB_DAEDDONG_BANNER_ID']!;
+    final releaseBannerId = dotenv.env['ADMOB_DAEDDONG_BANNER_ID'];
+    if (releaseBannerId == null || releaseBannerId.isEmpty) {
+      throw StateError('ADMOB_DAEDDONG_BANNER_ID is missing in release build.');
+    }
+    return releaseBannerId;
   }
 }

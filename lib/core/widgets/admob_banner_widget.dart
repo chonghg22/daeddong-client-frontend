@@ -31,7 +31,10 @@ class _AdmobBannerWidgetState extends State<AdmobBannerWidget> {
         onAdLoaded: (_) {
           if (mounted) setState(() => _loaded = true);
         },
-        onAdFailedToLoad: (ad, _) {
+        onAdFailedToLoad: (ad, error) {
+          debugPrint(
+            '[AdmobBannerWidget] onAdFailedToLoad code=${error.code} message=${error.message}',
+          );
           ad.dispose();
           _bannerAd = null;
         },

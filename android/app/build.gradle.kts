@@ -14,7 +14,7 @@ if (keystorePropertiesFile.exists()) {
 }
 
 val envProperties = Properties()
-val envFile = rootProject.file(".env")
+val envFile = rootProject.file("../.env")
 if (envFile.exists()) {
     envProperties.load(FileInputStream(envFile))
 }
@@ -58,10 +58,6 @@ android {
         create("daeddong") {
             dimension = "app"
             applicationId = "kr.co.daeddong"
-        }
-        create("babytoilet") {
-            dimension = "app"
-            applicationId = "kr.co.babytoilet"
         }
     }
 

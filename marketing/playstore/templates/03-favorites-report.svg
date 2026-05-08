@@ -1,0 +1,55 @@
+<svg width="1080" height="1920" viewBox="0 0 1080 1920" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg3" x1="120" y1="76" x2="962" y2="1866" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFF4DB"/>
+      <stop offset="0.52" stop-color="#FFF9EF"/>
+      <stop offset="1" stop-color="#F4FBF5"/>
+    </linearGradient>
+    <linearGradient id="phone3" x1="226" y1="656" x2="848" y2="1572" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#F9FCF8"/>
+    </linearGradient>
+    <filter id="shadow3" x="180" y="596" width="720" height="1098" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+      <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+      <feOffset dy="24"/>
+      <feGaussianBlur stdDeviation="34"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0.109804 0 0 0 0 0.2 0 0 0 0 0.14902 0 0 0 0.16 0"/>
+      <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_3_1"/>
+      <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_3_1" result="shape"/>
+    </filter>
+  </defs>
+  <rect width="1080" height="1920" fill="url(#bg3)"/>
+  <circle cx="904" cy="166" r="144" fill="#FFD454" fill-opacity="0.54"/>
+  <circle cx="180" cy="1510" r="214" fill="#DBF2D8"/>
+  <text x="72" y="220" fill="#16231B" font-family="Pretendard, Apple SD Gothic Neo, sans-serif" font-size="82" font-weight="800">즐겨찾기 저장하고</text>
+  <text x="72" y="312" fill="#16231B" font-family="Pretendard, Apple SD Gothic Neo, sans-serif" font-size="82" font-weight="800">정보도 제보하기</text>
+  <text x="72" y="388" fill="#5E7366" font-family="Pretendard, Apple SD Gothic Neo, sans-serif" font-size="34" font-weight="500">자주 가는 장소를 모아두고 바뀐 정보는 바로 알려주세요</text>
+  <g>
+    <rect x="72" y="460" width="178" height="58" rx="29" fill="#FFF1C5"/>
+    <text x="112" y="499" fill="#8D5E00" font-family="Pretendard, Apple SD Gothic Neo, sans-serif" font-size="28" font-weight="700">즐겨찾기</text>
+    <rect x="266" y="460" width="142" height="58" rx="29" fill="#E7F4E4"/>
+    <text x="306" y="499" fill="#2F7146" font-family="Pretendard, Apple SD Gothic Neo, sans-serif" font-size="28" font-weight="700">제보</text>
+  </g>
+  <g filter="url(#shadow3)">
+    <rect x="224" y="636" width="632" height="962" rx="56" fill="url(#phone3)"/>
+    <rect x="256" y="684" width="568" height="866" rx="36" fill="#F8FBF8"/>
+    <rect x="300" y="732" width="184" height="22" rx="11" fill="#B4D9B2"/>
+    <rect x="300" y="794" width="480" height="142" rx="24" fill="white"/>
+    <rect x="330" y="834" width="64" height="64" rx="20" fill="#E8F5E9"/>
+    <path d="M362 854C350 836 322 848 330 874C338 900 362 910 362 910C362 910 386 900 394 874C402 848 374 836 362 854Z" fill="#3FAE5D"/>
+    <rect x="420" y="834" width="190" height="20" rx="10" fill="#D1DED7"/>
+    <rect x="420" y="872" width="252" height="16" rx="8" fill="#E2EAE5"/>
+    <rect x="300" y="962" width="480" height="142" rx="24" fill="white"/>
+    <rect x="330" y="1002" width="64" height="64" rx="20" fill="#FFF3CF"/>
+    <circle cx="362" cy="1034" r="16" fill="#FDB515"/>
+    <rect x="420" y="1002" width="210" height="20" rx="10" fill="#D1DED7"/>
+    <rect x="420" y="1040" width="242" height="16" rx="8" fill="#E2EAE5"/>
+    <rect x="300" y="1150" width="480" height="320" rx="24" fill="white"/>
+    <rect x="330" y="1190" width="156" height="18" rx="9" fill="#D1DED7"/>
+    <rect x="330" y="1230" width="378" height="16" rx="8" fill="#E2EAE5"/>
+    <rect x="330" y="1264" width="378" height="16" rx="8" fill="#E2EAE5"/>
+    <rect x="330" y="1308" width="420" height="100" rx="22" fill="#173726"/>
+    <text x="468" y="1370" text-anchor="middle" fill="white" font-family="Pretendard, Apple SD Gothic Neo, sans-serif" font-size="30" font-weight="800">정보 제보</text>
+  </g>
+</svg>

@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:math' as math;
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -28,6 +27,8 @@ class MapScreen extends ConsumerStatefulWidget {
 
 class _MapScreenState extends ConsumerState<MapScreen> {
   NaverMapController? _mapController;
+  ProviderSubscription<List<ToiletModel>>? _filteredListSubscription;
+  ProviderSubscription<String?>? _errorSubscription;
 
   bool _locationDenied = false;
 
@@ -46,11 +47,38 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _handleLocationPermission();
     });
+    _filteredListSubscription = ref.listenManual(
+      mapProvider.select((s) => s.filteredToiletList),
+      (prev, filtered) {
+        _updateMarkers(filtered);
+        if (filtered.isEmpty &&
+            prev != null &&
+            prev.isNotEmpty &&
+            ref.read(mapProvider).filterState.hasAnyFilter) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('조건에 맞는 화장실이 없어요'),
+              duration: Duration(seconds: 2),
+            ),
+          );
+        }
+      },
+    );
+    _errorSubscription = ref.listenManual(
+      mapProvider.select((s) => s.error),
+      (_, error) {
+        if (error != null && error.contains('network')) {
+          _showNetworkErrorSnackBar();
+        }
+      },
+    );
   }
 
   @override
   void dispose() {
     _loadDebounce?.cancel();
+    _filteredListSubscription?.close();
+    _errorSubscription?.close();
     super.dispose();
   }
 
@@ -216,20 +244,11 @@ class _MapScreenState extends ConsumerState<MapScreen> {
           id: 'toilet_${t.seq ?? math.Random().nextInt(999999)}',
           position: NLatLng(t.latitude!, t.longitude!),
         );
+        marker.setOnTapListener((_) => _showToiletBottomSheet(t));
         pairs.add((marker, t));
       }
 
-      // 마커 추가 후 리스너 설정 (네이티브 등록 이후에만 유효)
       await _mapController!.addOverlayAll(pairs.map((p) => p.$1).toSet());
-      if (_mapController == null) return;
-
-      for (final (marker, toilet) in pairs) {
-        try {
-          marker.setOnTapListener((_) => _showToiletBottomSheet(toilet));
-        } catch (e) {
-          debugPrint('[MapScreen] setOnTapListener 오류: $e');
-        }
-      }
     } catch (e) {
       debugPrint('[MapScreen] _updateMarkers 오류: $e');
     } finally {
@@ -248,10 +267,12 @@ class _MapScreenState extends ConsumerState<MapScreen> {
       ),
       builder: (ctx) => _ToiletBottomSheet(
         toilet: toilet,
-        onDetailTap: () {
-          Navigator.pop(ctx);
-          context.push('/detail/${toilet.seq}');
-        },
+        onDetailTap: toilet.seq == null
+            ? null
+            : () {
+                Navigator.pop(ctx);
+                context.push('/detail/${toilet.seq}');
+              },
         onNavigateTap: () {
           Navigator.pop(ctx);
           _showNavigationDialog(toilet);
@@ -433,28 +454,6 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   Widget build(BuildContext context) {
     final topPadding = MediaQuery.of(context).padding.top;
     final mapState = ref.watch(mapProvider);
-
-    // filteredToiletList 변경 → 마커 갱신 + 빈 결과 토스트
-    ref.listen(mapProvider.select((s) => s.filteredToiletList), (prev, filtered) {
-      _updateMarkers(filtered);
-      if (filtered.isEmpty &&
-          prev != null &&
-          prev.isNotEmpty &&
-          ref.read(mapProvider).filterState.hasAnyFilter) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('조건에 맞는 화장실이 없어요'),
-            duration: Duration(seconds: 2),
-          ),
-        );
-      }
-    });
-
-    ref.listen(mapProvider.select((s) => s.error), (_, error) {
-      if (error != null && error.contains('network')) {
-        _showNetworkErrorSnackBar();
-      }
-    });
 
     const double bannerHeight = 50.0;
     final topOffset = topPadding + (_locationDenied ? 44.0 : 0.0);
@@ -844,7 +843,7 @@ class _ToiletTypeChip extends StatelessWidget {
 
 class _ToiletBottomSheet extends ConsumerWidget {
   final ToiletModel toilet;
-  final VoidCallback onDetailTap;
+  final VoidCallback? onDetailTap;
   final VoidCallback onNavigateTap;
 
   const _ToiletBottomSheet({
